@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Download Spotify Playlist" />
+    <title>Spotify Playlist Downloader</title>
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 50px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .btn-custom {
+            background-color: #28a745;
+            color: white;
+            border: none;
+        }
+        .btn-custom:hover {
+            background-color: #218838;
+        }
+        #loadingScreen {
+        display: none;
+        justify-content: center; /* Center vertically */
+        align-items: center; /* Center horizontally */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        z-index: 1000;
+        }
+
+      .spinner-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .spinner-border {
+        width: 3rem; /* Adjust spinner size */
+        height: 3rem; /* Adjust spinner size */
+        border-width: 0.4em; /* Adjust spinner border width */
+      }
+
+      #facts {
+        margin-top: 1rem; /* Space between spinner and facts */
+        font-style: italic; /* Italicize text */
+      }
+
+      .random-playlist-section {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#randomPlaylistButton {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#randomPlaylistButton:hover {
+    background-color: #0056b3;
+}
+
+
+    </style>
+</head>
+<body>
+    
+
+    <div class="container">
+        <div class="header">
+            <h1>Spotify Playlist Downloader</h1>
+            <p>Paste the Spotify Playlist URL and select the audio quality to download your playlist.</p>
+        </div>
+        <form id="playlistForm" action="/download_playlist" method="post">
+            <div class="mb-3">
+                <label for="playlistUrl" class="form-label">Playlist URL</label>
+                <input type="text" class="form-control" id="playlistUrl" name="playlistUrl" required>
+            </div>
+            <div class="mb-3">
+              <label for="audioQuality" class="form-label">Select Audio Quality:</label>
+              <select class="form-select" id="audioQuality" name="audioQuality" required>
+                <option value="128">128 kbps</option>
+                <option value="192" selected>192 kbps</option>
+                <option value="256">256 kbps</option>
+                <option value="320">320 kbps</option>
+              </select>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-custom">Download Playlist</button>
+            </div>
+            <div class="random-playlist-section">              
+          </div>
+          
+        </form>
+        <p>Don't have a playlist? </p>
+        <button id="randomPlaylistButton">Get Random Playlist</button>
+
+        <div id="loadingScreen">
+          <div class="spinner-container">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div id="facts"></div>
+          </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script>
+
+        document.getElementById('randomPlaylistButton').addEventListener('click', function() {
+          document.getElementById('loadingScreen').style.display = 'flex';
+          const facts = [
+    "The world's largest piano was built by a 15-year-old in New Zealand.",
+    "Beethoven continued to compose music even after he went deaf.",
+    "The shortest war in history lasted only 38 minutes and was between two countries: Britain and Zanzibar. Music played a big role in this war.",
+    "The first music video ever played on MTV was 'Video Killed the Radio Star' by The Buggles.",
+    "The longest concert by a single band was 27 hours and 3 minutes by the band The Flaming Lips.",
+    "The first recorded song was made by Thomas Edison in 1877, and it was 'Mary Had a Little Lamb'.",
+    "There are more than 1,500 different musical instruments around the world.",
+    "The most expensive musical instrument ever sold was a Stradivarius violin for $16 million.",
+    "The guitar is the most commonly played instrument in the world.",
+    "The human voice is the only instrument that can be played without a physical object.",
+    "Mozart composed over 600 pieces of music in his lifetime.",
+    "The Beatles hold the record for the most number-one hits on the Billboard Hot 100 chart.",
+    "The largest music festival in the world is Donauinselfest in Vienna, which attracts around 3 million visitors each year.",
+    "The word 'music' comes from the Greek word 'mousike', which means 'art of the Muses'.",
+    "A metronome is a device used to keep a steady beat in music.",
+    "The drum is one of the oldest musical instruments in the world.",
+    "The longest piece of music ever composed is 'As Slow As Possible' by John Cage, and it is performed over 639 years.",
+    "The most played song of all time is 'Happy Birthday'.",
+    "A person who writes music is called a composer.",
+    "The first electronic synthesizer was invented in the 1960s.",
+    "The piano has 88 keys.",
+    "A 'concerto' is a musical composition for a solo instrument accompanied by an orchestra.",
+    "Beethoven wrote his Ninth Symphony while he was completely deaf.",
+    "The word 'symphony' comes from the Greek word 'symphonia', meaning 'concord or agreement of sound'.",
+    "The clarinet is a woodwind instrument.",
+    "The violin is a string instrument with four strings.",
+    "A 'sonata' is a type of composition typically consisting of three or four movements.",
+    "The world's most expensive piano is the Crystal Piano, worth $3.22 million.",
+    "An orchestra typically includes strings, woodwinds, brass, and percussion instruments.",
+    "The 'Toccata and Fugue in D minor' by Johann Sebastian Bach is one of the most famous pieces of organ music.",
+    "Music can help improve memory and concentration.",
+    "The world's largest choir was made up of 15,000 singers in 2019 in South Korea.",
+    "The 'Star-Spangled Banner' is the national anthem of the United States.",
+    "The world's fastest drummer can play 1,208 beats per minute.",
+    "The 'Ode to Joy' from Beethoven's Ninth Symphony is often used in celebrations.",
+    "Jingle Bells was the first song ever played in space.",
+    "The most expensive music album ever sold was a limited edition of Michael Jackson's 'Thriller' for $100,000.",
+    "Music therapy is used to help people with physical and mental health issues.",
+    "The saxophone was invented by Adolphe Sax in the 1840s.",
+    "The 'Moonlight Sonata' by Beethoven is one of the most famous piano pieces.",
+    "An opera is a dramatic work combining text and music.",
+    "The ukulele originated in Hawaii and is a small, four-stringed instrument.",
+    "The world's largest drum is 15 feet in diameter.",
+    "The first musical notation system was created by the ancient Greeks.",
+    "The most performed classical composer is Johann Sebastian Bach.",
+    "The harp has over 200 strings.",
+    "A 'rhapsody' is a musical composition with a free form and often emotional content.",
+    "The accordion was invented in Germany in the early 19th century.",
+    "The world's most expensive violin is a Stradivarius, made in 1714.",
+    "The flute is a woodwind instrument made from metal or wood.",
+    "A 'ballad' is a song that tells a story.",
+    "Music can influence mood and emotions.",
+    "The largest music collection in the world is held by the British Library.",
+    "The electric guitar was invented in the 1930s.",
+    "The 'Swan Lake' ballet was composed by Pyotr Ilyich Tchaikovsky.",
+    "The largest organ in the world is in the Atlantic City Convention Hall.",
+    "A 'mezzo-soprano' is a female voice type that is between soprano and alto.",
+    "The 'Requiem' is a musical composition for the dead.",
+    "The tuba is the largest brass instrument.",
+    "The musical term 'forte' means to play loudly.",
+    "A 'nocturne' is a musical composition inspired by the night.",
+    "The 'Can Can' is a lively dance from France.",
+    "A 'cadence' in music is a sequence of chords that concludes a phrase.",
+    "The banjo is a stringed instrument with a circular body.",
+    "A 'duet' is a musical performance by two people.",
+    "The 'Nutcracker Suite' is a popular ballet by Tchaikovsky.",
+    "A 'chord' is a group of notes played together.",
+    "The 'Hallelujah Chorus' is from Handel's Messiah.",
+    "The 'Pachelbel's Canon' is a famous piece often played at weddings.",
+    "The 'Boléro' by Maurice Ravel is known for its repetitive rhythm.",
+    "A 'sonata' usually has three or four movements.",
+    "The 'Flight of the Bumblebee' was composed by Nikolai Rimsky-Korsakov.",
+    "A 'glissando' is a musical technique where notes are played in a smooth, sliding manner.",
+    "The 'A-flat major' scale has four flats.",
+    "A 'pizzicato' is a technique where strings are plucked instead of bowed.",
+    "The 'Solfège' system is used to teach sight-singing.",
+    "The 'Vivaldi Four Seasons' are a set of four violin concertos.",
+    "A 'key signature' indicates the key of a piece of music.",
+    "The 'Tango' is a dance style originating from Argentina.",
+    "The 'Largo' is a musical term meaning 'slow and broad'.",
+    "A 'fugue' is a musical composition where a theme is introduced and then developed.",
+    "The 'Rhapsody in Blue' was composed by George Gershwin.",
+    "The 'Gamelan' is a traditional music ensemble from Indonesia.",
+    "The 'Waltz' is a dance style in triple time.",
+    "The 'Etude' is a musical composition designed to improve a musician's technique.",
+    "The 'Saxophone' is named after its inventor, Adolphe Sax.",
+    "The 'Harpsichord' was a popular keyboard instrument before the piano.",
+    "The 'Bongo drums' are a pair of small, open-ended drums.",
+    "The 'Zither' is a stringed instrument played by strumming or plucking.",
+    "The 'Orff' instruments are designed for children to learn music.",
+    "The 'Mandolin' is a stringed instrument with a rounded back.",
+    "The 'Vibrato' is a technique where the pitch of a note is varied.",
+    "The 'Ukulele' is a Hawaiian instrument with four nylon or gut strings.",
+    "The 'Timpani' are large, kettledrums used in orchestras.",
+    "The 'Guitar' is believed to have originated from ancient stringed instruments.",
+    "The 'Marimba' is a percussion instrument with wooden bars.",
+    "The 'Oboe' is a woodwind instrument with a double reed.",
+    "The 'Sitar' is a traditional Indian stringed instrument.",
+    "The 'French Horn' is a brass instrument with a coiled tube.",
+    "The 'Trombone' has a sliding mechanism to change pitch.",
+    "The 'Clarinet' is played by blowing air through a single reed.",
+    "The 'Saxophone' is used in various music genres including jazz and classical.",
+    "The 'Basset Horn' is a lower-pitched relative of the clarinet.",
+    "The 'Double Bass' is the largest and lowest-pitched string instrument in the orchestra.",
+    "The 'Sousaphone' is a type of tuba designed for marching bands.",
+    "The 'Harmonica' is a small wind instrument with reeds.",
+    "The 'Basset Clarinet' is an extended range clarinet.",
+    "The 'Cymbals' are percussion instruments that produce a crashing sound.",
+    "The 'Lute' is a historical stringed instrument from the Renaissance period.",
+    "The 'Dulcimer' is a stringed instrument played by striking the strings.",
+    "The 'Piano Forte' was the original name for the modern piano.",
+    "The 'Glockenspiel' is a percussion instrument with metal bars.",
+    "The 'Steel Drum' is a musical instrument made from metal barrels.",
+    "The 'Cornet' is a brass instrument similar to the trumpet.",
+    "The 'Piccolo' is a small flute that plays an octave higher than the standard flute.",
+    "The 'Rattle' is a percussion instrument used in various cultures.",
+    "The 'Cembalo' is another name for the harpsichord.",
+    "The 'Koto' is a Japanese stringed instrument played by plucking.",
+    "The 'Bassoon' is a woodwind instrument with a long, reedy sound.",
+    "The 'Soprano' is the highest female voice type in classical music.",
+    "The 'Baritone' is a male voice type that is between tenor and bass.",
+    "The 'Alto' is a female voice type with a range lower than soprano.",
+    "The 'Tuba' is the largest and lowest-pitched brass instrument.",
+    "The 'Fiddle' is a term often used for the violin in folk music.",
+    "The 'Harp' is a stringed instrument played by plucking.",
+    "The 'Mandolin' is a small stringed instrument with a bright sound.",
+    "The 'Harmonium' is a keyboard instrument with a pumping action.",
+    "The 'Synthesizer' is an electronic instrument that generates sounds.",
+    "The 'Organ' is a keyboard instrument with pipes that produce sound.",
+    "The 'Acoustic Guitar' is a stringed instrument that produces sound acoustically."
+];
+
+
+let factIndex = 0;
+const factsElement = document.getElementById('facts');
+
+function showFact() {
+    factsElement.textContent = facts[factIndex];
+    factIndex = (factIndex + 1) % facts.length;
+}
+
+setInterval(showFact, 3000); // Change fact every 3 seconds
+showFact(); // Show the first fact immediately
+        window.location.href = '/random_playlist';
+        });
+
+
+        document.getElementById('playlistForm').addEventListener('submit', function() {
+            document.getElementById('loadingScreen').style.display = 'flex';
+            const facts = [
+    "The world's largest piano was built by a 15-year-old in New Zealand.",
+    "Beethoven continued to compose music even after he went deaf.",
+    "The shortest war in history lasted only 38 minutes and was between two countries: Britain and Zanzibar. Music played a big role in this war.",
+    "The first music video ever played on MTV was 'Video Killed the Radio Star' by The Buggles.",
+    "The longest concert by a single band was 27 hours and 3 minutes by the band The Flaming Lips.",
+    "The first recorded song was made by Thomas Edison in 1877, and it was 'Mary Had a Little Lamb'.",
+    "There are more than 1,500 different musical instruments around the world.",
+    "The most expensive musical instrument ever sold was a Stradivarius violin for $16 million.",
+    "The guitar is the most commonly played instrument in the world.",
+    "The human voice is the only instrument that can be played without a physical object.",
+    "Mozart composed over 600 pieces of music in his lifetime.",
+    "The Beatles hold the record for the most number-one hits on the Billboard Hot 100 chart.",
+    "The largest music festival in the world is Donauinselfest in Vienna, which attracts around 3 million visitors each year.",
+    "The word 'music' comes from the Greek word 'mousike', which means 'art of the Muses'.",
+    "A metronome is a device used to keep a steady beat in music.",
+    "The drum is one of the oldest musical instruments in the world.",
+    "The longest piece of music ever composed is 'As Slow As Possible' by John Cage, and it is performed over 639 years.",
+    "The most played song of all time is 'Happy Birthday'.",
+    "A person who writes music is called a composer.",
+    "The first electronic synthesizer was invented in the 1960s.",
+    "The piano has 88 keys.",
+    "A 'concerto' is a musical composition for a solo instrument accompanied by an orchestra.",
+    "Beethoven wrote his Ninth Symphony while he was completely deaf.",
+    "The word 'symphony' comes from the Greek word 'symphonia', meaning 'concord or agreement of sound'.",
+    "The clarinet is a woodwind instrument.",
+    "The violin is a string instrument with four strings.",
+    "A 'sonata' is a type of composition typically consisting of three or four movements.",
+    "The world's most expensive piano is the Crystal Piano, worth $3.22 million.",
+    "An orchestra typically includes strings, woodwinds, brass, and percussion instruments.",
+    "The 'Toccata and Fugue in D minor' by Johann Sebastian Bach is one of the most famous pieces of organ music.",
+    "Music can help improve memory and concentration.",
+    "The world's largest choir was made up of 15,000 singers in 2019 in South Korea.",
+    "The 'Star-Spangled Banner' is the national anthem of the United States.",
+    "The world's fastest drummer can play 1,208 beats per minute.",
+    "The 'Ode to Joy' from Beethoven's Ninth Symphony is often used in celebrations.",
+    "Jingle Bells was the first song ever played in space.",
+    "The most expensive music album ever sold was a limited edition of Michael Jackson's 'Thriller' for $100,000.",
+    "Music therapy is used to help people with physical and mental health issues.",
+    "The saxophone was invented by Adolphe Sax in the 1840s.",
+    "The 'Moonlight Sonata' by Beethoven is one of the most famous piano pieces.",
+    "An opera is a dramatic work combining text and music.",
+    "The ukulele originated in Hawaii and is a small, four-stringed instrument.",
+    "The world's largest drum is 15 feet in diameter.",
+    "The first musical notation system was created by the ancient Greeks.",
+    "The most performed classical composer is Johann Sebastian Bach.",
+    "The harp has over 200 strings.",
+    "A 'rhapsody' is a musical composition with a free form and often emotional content.",
+    "The accordion was invented in Germany in the early 19th century.",
+    "The world's most expensive violin is a Stradivarius, made in 1714.",
+    "The flute is a woodwind instrument made from metal or wood.",
+    "A 'ballad' is a song that tells a story.",
+    "Music can influence mood and emotions.",
+    "The largest music collection in the world is held by the British Library.",
+    "The electric guitar was invented in the 1930s.",
+    "The 'Swan Lake' ballet was composed by Pyotr Ilyich Tchaikovsky.",
+    "The largest organ in the world is in the Atlantic City Convention Hall.",
+    "A 'mezzo-soprano' is a female voice type that is between soprano and alto.",
+    "The 'Requiem' is a musical composition for the dead.",
+    "The tuba is the largest brass instrument.",
+    "The musical term 'forte' means to play loudly.",
+    "A 'nocturne' is a musical composition inspired by the night.",
+    "The 'Can Can' is a lively dance from France.",
+    "A 'cadence' in music is a sequence of chords that concludes a phrase.",
+    "The banjo is a stringed instrument with a circular body.",
+    "A 'duet' is a musical performance by two people.",
+    "The 'Nutcracker Suite' is a popular ballet by Tchaikovsky.",
+    "A 'chord' is a group of notes played together.",
+    "The 'Hallelujah Chorus' is from Handel's Messiah.",
+    "The 'Pachelbel's Canon' is a famous piece often played at weddings.",
+    "The 'Boléro' by Maurice Ravel is known for its repetitive rhythm.",
+    "A 'sonata' usually has three or four movements.",
+    "The 'Flight of the Bumblebee' was composed by Nikolai Rimsky-Korsakov.",
+    "A 'glissando' is a musical technique where notes are played in a smooth, sliding manner.",
+    "The 'A-flat major' scale has four flats.",
+    "A 'pizzicato' is a technique where strings are plucked instead of bowed.",
+    "The 'Solfège' system is used to teach sight-singing.",
+    "The 'Vivaldi Four Seasons' are a set of four violin concertos.",
+    "A 'key signature' indicates the key of a piece of music.",
+    "The 'Tango' is a dance style originating from Argentina.",
+    "The 'Largo' is a musical term meaning 'slow and broad'.",
+    "A 'fugue' is a musical composition where a theme is introduced and then developed.",
+    "The 'Rhapsody in Blue' was composed by George Gershwin.",
+    "The 'Gamelan' is a traditional music ensemble from Indonesia.",
+    "The 'Waltz' is a dance style in triple time.",
+    "The 'Etude' is a musical composition designed to improve a musician's technique.",
+    "The 'Saxophone' is named after its inventor, Adolphe Sax.",
+    "The 'Harpsichord' was a popular keyboard instrument before the piano.",
+    "The 'Bongo drums' are a pair of small, open-ended drums.",
+    "The 'Zither' is a stringed instrument played by strumming or plucking.",
+    "The 'Orff' instruments are designed for children to learn music.",
+    "The 'Mandolin' is a stringed instrument with a rounded back.",
+    "The 'Vibrato' is a technique where the pitch of a note is varied.",
+    "The 'Ukulele' is a Hawaiian instrument with four nylon or gut strings.",
+    "The 'Timpani' are large, kettledrums used in orchestras.",
+    "The 'Guitar' is believed to have originated from ancient stringed instruments.",
+    "The 'Marimba' is a percussion instrument with wooden bars.",
+    "The 'Oboe' is a woodwind instrument with a double reed.",
+    "The 'Sitar' is a traditional Indian stringed instrument.",
+    "The 'French Horn' is a brass instrument with a coiled tube.",
+    "The 'Trombone' has a sliding mechanism to change pitch.",
+    "The 'Clarinet' is played by blowing air through a single reed.",
+    "The 'Saxophone' is used in various music genres including jazz and classical.",
+    "The 'Basset Horn' is a lower-pitched relative of the clarinet.",
+    "The 'Double Bass' is the largest and lowest-pitched string instrument in the orchestra.",
+    "The 'Sousaphone' is a type of tuba designed for marching bands.",
+    "The 'Harmonica' is a small wind instrument with reeds.",
+    "The 'Basset Clarinet' is an extended range clarinet.",
+    "The 'Cymbals' are percussion instruments that produce a crashing sound.",
+    "The 'Lute' is a historical stringed instrument from the Renaissance period.",
+    "The 'Dulcimer' is a stringed instrument played by striking the strings.",
+    "The 'Piano Forte' was the original name for the modern piano.",
+    "The 'Glockenspiel' is a percussion instrument with metal bars.",
+    "The 'Steel Drum' is a musical instrument made from metal barrels.",
+    "The 'Cornet' is a brass instrument similar to the trumpet.",
+    "The 'Piccolo' is a small flute that plays an octave higher than the standard flute.",
+    "The 'Rattle' is a percussion instrument used in various cultures.",
+    "The 'Cembalo' is another name for the harpsichord.",
+    "The 'Koto' is a Japanese stringed instrument played by plucking.",
+    "The 'Bassoon' is a woodwind instrument with a long, reedy sound.",
+    "The 'Soprano' is the highest female voice type in classical music.",
+    "The 'Baritone' is a male voice type that is between tenor and bass.",
+    "The 'Alto' is a female voice type with a range lower than soprano.",
+    "The 'Tuba' is the largest and lowest-pitched brass instrument.",
+    "The 'Fiddle' is a term often used for the violin in folk music.",
+    "The 'Harp' is a stringed instrument played by plucking.",
+    "The 'Mandolin' is a small stringed instrument with a bright sound.",
+    "The 'Harmonium' is a keyboard instrument with a pumping action.",
+    "The 'Synthesizer' is an electronic instrument that generates sounds.",
+    "The 'Organ' is a keyboard instrument with pipes that produce sound.",
+    "The 'Acoustic Guitar' is a stringed instrument that produces sound acoustically."
+];
+
+
+let factIndex = 0;
+const factsElement = document.getElementById('facts');
+
+function showFact() {
+    factsElement.textContent = facts[factIndex];
+    factIndex = (factIndex + 1) % facts.length;
+}
+
+setInterval(showFact, 3000); // Change fact every 3 seconds
+showFact(); // Show the first fact immediately
+        });
+    </script>
+</body>
+</html>
