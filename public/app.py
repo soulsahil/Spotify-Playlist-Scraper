@@ -10,8 +10,8 @@ import random
 app = Flask(__name__)
 CORS(app)
 
-SPOTIFY_CLIENT_ID = "099536718295433fa77a29d895812f7c"
-SPOTIFY_CLIENT_SECRET = "25424f89f0ec44be8282e18eeab0b4fa"
+SPOTIFY_CLIENT_ID = ""
+SPOTIFY_CLIENT_SECRET = ""
 REDIRECT_URI = "http://localhost:5000/callback"
 SCOPE = "user-read-private user-read-email playlist-read-private"
 
