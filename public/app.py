@@ -12,7 +12,7 @@ CORS(app)
 
 SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET")
-REDIRECT_URI = os.environ.get("REDIRECT_URI", "http://localhost:5000/callback")
+REDIRECT_URI = os.environ.get("REDIRECT_URI", "https://spotify-playlist-scraper-soulsahils-projects.vercel.app/callback")
 SCOPE = "user-read-private user-read-email playlist-read-private"
 
 @app.route('/')
