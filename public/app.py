@@ -96,6 +96,10 @@ def callback():
     authorization_code = request.args.get('code')
     state = request.args.get('state')
 
+    print(f"Authorization code: {authorization_code}")
+    print(f"State: {state}")
+
+
     if not authorization_code:
         return "Authorization code not found in callback request."
     
